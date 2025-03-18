@@ -4,7 +4,7 @@
 
 #define MAX_NAME_LEN 50
 
-// Patient structure
+// Define structures for Patients and Appointments
 typedef struct {
     int id;
     char name[MAX_NAME_LEN];
@@ -12,37 +12,33 @@ typedef struct {
     char disease[100];
 } Patient;
 
-// Doctor structure
-typedef struct {
-    int id;
-    char name[MAX_NAME_LEN];
-    char specialty[50];
-} Doctor;
-
-// Appointment structure
 typedef struct {
     int patientID;
-    int doctorID;
+    char doctorName[MAX_NAME_LEN];
     char date[15];
 } Appointment;
 
 // Function to add a patient
 void addPatient() {
-    FILE *file = fopen("patients.dat", "ab"); // Append mode
+    FILE *file = fopen("patients.dat", "ab");
     if (!file) {
         printf("Error opening file!\n");
         return;
     }
 
     Patient p;
-    printf("Enter Patient ID: ");
+    printf("\nEnter Patient ID: ");
     scanf("%d", &p.id);
+    getchar(); // Clear buffer
     printf("Enter Patient Name: ");
-    scanf(" %[^\n]", p.name);
+    fgets(p.name, MAX_NAME_LEN, stdin);
+    strtok(p.name, "\n"); // Remove newline character
     printf("Enter Age: ");
     scanf("%d", &p.age);
+    getchar();
     printf("Enter Disease: ");
-    scanf(" %[^\n]", p.disease);
+    fgets(p.disease, sizeof(p.disease), stdin);
+    strtok(p.disease, "\n");
 
     fwrite(&p, sizeof(Patient), 1, file);
     fclose(file);
@@ -75,12 +71,15 @@ void bookAppointment() {
     }
 
     Appointment a;
-    printf("Enter Patient ID: ");
+    printf("\nEnter Patient ID: ");
     scanf("%d", &a.patientID);
-    printf("Enter Doctor ID: ");
-    scanf("%d", &a.doctorID);
+    getchar();
+    printf("Enter Doctor's Name: ");
+    fgets(a.doctorName, MAX_NAME_LEN, stdin);
+    strtok(a.doctorName, "\n");
     printf("Enter Appointment Date (DD/MM/YYYY): ");
-    scanf(" %[^\n]", a.date);
+    fgets(a.date, sizeof(a.date), stdin);
+    strtok(a.date, "\n");
 
     fwrite(&a, sizeof(Appointment), 1, file);
     fclose(file);
@@ -88,9 +87,9 @@ void bookAppointment() {
     printf("Appointment booked successfully!\n");
 }
 
-// Function to generate bill
+// Function to generate a bill
 void generateBill() {
-    FILE *file = fopen("bills.dat", "ab");
+    FILE *file = fopen("bills.txt", "a");
     if (!file) {
         printf("Error opening file!\n");
         return;
@@ -98,7 +97,7 @@ void generateBill() {
 
     int patientID;
     float amount;
-    printf("Enter Patient ID: ");
+    printf("\nEnter Patient ID: ");
     scanf("%d", &patientID);
     printf("Enter Bill Amount: $");
     scanf("%f", &amount);
@@ -121,6 +120,7 @@ void menu() {
         printf("5. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
+        getchar(); // Clear buffer
 
         switch (choice) {
             case 1: addPatient(); break;
